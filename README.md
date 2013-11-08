@@ -15,9 +15,9 @@ Then run mininet:
     sudo mn --custom mesh.py --topo mesh,2,3 --mac --switch ovsk --controller remote
 
 - --custom mesh.py
-  - As of commit [94adabfaf7b067f7091a41aabaab97c651291418](https://github.com/cs-543/OpenBlow/commit/94adabfaf7b067f7091a41aabaab97c651291418) runs a script that creates one switch and one host connected to it [to be confirmed!]
+  - As of commit [94adabfaf7b067f7091a41aabaab97c651291418](https://github.com/cs-543/OpenBlow/commit/94adabfaf7b067f7091a41aabaab97c651291418) runs a script that accepts parameters for the number of switches and hosts (see next parameter) and wires every switch to one another and links hosts to them
 - --topo mesh,2,3
-  - tells mininet to start using the topology of a mesh network with 2 switches and 3 hosts??? [to be confirmed!]
+  - provides parameters for the aforementioned script. tells mininet to start using the topology of a mesh network with 2 switches and 3 hosts per switch, resulting in 6 hosts
 - --mac
   - tells mininet to assign each host a sequencial mac address, matching its IP address
 - --switch ovsk
