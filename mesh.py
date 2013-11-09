@@ -42,7 +42,7 @@ class MeshTopo(Topo):
         tries = 100
         while tries > 0:
             tries = place_switch( tries, 100, switch_locations
-                                , minDistance = 15.0 )
+                                , minDistance = 8.0 )
 
         # Okay so then let's decide where the links go. Switches should link to
         # those switches that are within their area of influence. So what we do
@@ -54,7 +54,7 @@ class MeshTopo(Topo):
         # non-connected switch until it connects. We continue until everything
         # is connected.
 
-        switch_strengths = map(lambda _: 15.0, switch_locations)
+        switch_strengths = map(lambda _: 9.0, switch_locations)
         def new_links():
             return make_switch_links( switch_locations, switch_strengths )
         switch_links = new_links()
