@@ -10,20 +10,50 @@ First, run the POX controller:
   - This hub example just installs wildcarded flood rules on every switch, essentially turning them all into $10 ethernet hubs.
   - Fore more information [read here](https://openflow.stanford.edu/display/ONL/POX+Wiki#POXWiki-forwarding.hub)
 
+Currently you need to enable STP in the Open vSwitch controller or otherwise
+the hubbing controller will make the switches replicate packets to all other
+switches which in turn will make more and more packets. And before you know it,
+all the switches are $0 bricks and it's your fault. STP is a spanning tree
+protocol that makes the switches be a little more smart about looping
+topologies.
+
+At the moment we don't have a clean way to enable STP so go to mininet source
+and modify mininet/node.py file:
+
+    node.py:
+    ...
+    self.cmd( 'ovs-vsctl -- set Bridge', self,
+              'other_config:datapath-id=' + self.dpid )
+    self.cmd( 'ovs-vsctl set-fail-mode', self, self.failMode )
+    self.cmd( 'ovs-vsctl set Bridge', self, 'stp_enable=yes' )
+    for intf in self.intfList():                  ^
+        if not intf.IP():                         |
+    ...                                           +-- Add this line
+
+Add the line that says stp_enable=yes.
+
 Then run mininet:
 
-    sudo mn --custom mesh.py --topo mesh,2,3 --mac --switch ovsk --controller remote
 
-- --custom mesh.py
-  - As of commit [94adabfaf7b067f7091a41aabaab97c651291418](https://github.com/cs-543/OpenBlow/commit/94adabfaf7b067f7091a41aabaab97c651291418) runs a script that accepts parameters for the number of switches and hosts (see next parameter) and wires every switch to one another and links hosts to them
-- --topo mesh,2,3
-  - provides parameters for the aforementioned script. tells mininet to start using the topology of a mesh network with 2 switches and 3 hosts per switch, resulting in 6 hosts
-- --mac
-  - tells mininet to assign each host a sequencial mac address, matching its IP address
-- --switch ovsk
-  - tells mininet that the switches are to be of the type ovsk, this is the type for Openflow
-- --controller remote
-  - tells mininet that each Openflow switch is to talk to a controller, which is located at a remote location
+    sudo mn --custom mesh.py --topo mesh --mac --switch ovsk --controller remote
+                      ^              ^      ^            ^                  ^
+                      |              |      |            |                  |
+                      |              |      |   Use Open vSwitch switches   |
+                      |              |      |                               |
+                      |              |      |                Use remote OpenFlow
+                      |              |      |                controller (in our case
+                      |              |      |                pox).
+                      |              |      |
+                      |              |      +-- Use mac addresses that match
+                      |              |          IP addresses
+    Load our custom topology file    |
+                                     |
+                               Actually use that topology
+
+
+It takes about 30 seconds before there actually is connectivity between
+hosts to don't assume it is broken if at first you get unreachable host
+messages from trying to ping stuff.
 
 # Further documentation
 - [mininet introduction](https://github.com/mininet/mininet/wiki/Introduction-to-Mininet)
