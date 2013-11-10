@@ -14,83 +14,10 @@ HEIGHT = 9
 
 class MeshTopo(Topo):
 
-    def __init__(self, **opts):
+    def __init__(self, minDistance = 2.5, initialStrength = 3, **opts):
         Topo.__init__(self, **opts)
 
-        # Now, let us try to make "a realistic" mesh network.
-        # In a wireless mesh network, I assume people just spread those access
-        # points everywhere and then make them contact each other to see who
-        # can reach who and build a wonderful topology. What we are going to do
-        # is emulate this behaviour
-
-
-        # Now, first let's find out nice locations for the switches.
-        # For the moment, I'll use a rectangle with aspect ratio 16:9 because
-        # then it'll fit nicely in a presentation without having to stretch in
-        # any direction.
-
-        #  0             16
-        #  v             v
-        #  +-------------+<--0
-        #  |             |
-        #  |             |
-        #  +-------------+<--9
-        #
-
-        # Get me my switch locations
-        switch_locations = []
-        tries = 100
-        while tries > 0:
-            tries = place_switch( tries, 100, switch_locations
-                                , minDistance = 8.0 )
-
-        # Okay so then let's decide where the links go. Switches should link to
-        # those switches that are within their area of influence. So what we do
-        # is that we assign a distance on how far the influence reaches and
-        # then link all those switches that are in range. We start with 1.2
-        # distance for all switches and then we check if everything is
-        # connected. If not, then we find a pair of switches where the other
-        # one is not connected and then increase the strength of 
-        # non-connected switch until it connects. We continue until everything
-        # is connected.
-
-        switch_strengths = map(lambda _: 9.0, switch_locations)
-        def new_links():
-            return make_switch_links( switch_locations, switch_strengths )
-        switch_links = new_links()
-
-        while True:
-            unconnected_switches = get_unconnected_switches( switch_links )
-            if not unconnected_switches:
-                break
-
-            print(unconnected_switches)
-
-            # Find the best switch to muscle up
-            best_unconnected_switch = None
-            best_unconnected_distance = 100000000
-            for i1 in range(len(switch_locations)):
-                for i2 in range(len(switch_locations)):
-                    if (i1 != i2 and
-
-                        distance2( switch_locations[i1]
-                                 , switch_locations[i2] ) <
-                        best_unconnected_distance and
-
-                        ( (i1 in unconnected_switches and
-                           i2 not in unconnected_switches ) or
-                          (i1 not in unconnected_switches and
-                           i2 in unconnected_switches ) )):
-
-                        best_unconnected_switch = i1
-                        if i2 in unconnected_switches:
-                            best_unconnected_switch = i2
-                        best_unconnected_distance = distance2(
-                                switch_locations[i1]
-                              , switch_locations[i2])
-
-            switch_strengths[best_unconnected_switch] += 0.1
-            switch_links = new_links()
+        ( switch_locations, switch_links ) = make_mesh(minDistance, initialStrength)
 
         # Now, the mininet stuff. Take the results of our wonderful
         # calculations and spit out something mininet can understand.
@@ -99,8 +26,6 @@ class MeshTopo(Topo):
         for switch in switch_locations:
             switches.append(self.addSwitch('s%s' % counter))
             counter += 1
-
-        print(switches)
 
         added_links = { }
         for i in range(len(switches)):
@@ -119,6 +44,120 @@ class MeshTopo(Topo):
                         added_links[min_link].add(max_link)
                     else:
                         added_links[min_link] = set([max_link])
+
+def write_graphviz( switch_locations, switch_links ):
+    # I just copied the code from the mininet mesh outputter above like good
+    # computer science dudes do.
+
+    # So let's write that stupid graph to graphviz dot file
+    gv = open('mesh.dot', 'wt')
+    gv.write( 'graph {\n')
+
+    # Now, the mininet stuff. Take the results of our wonderful
+    # calculations and spit out something mininet can understand.
+    counter = 0
+    switches = []
+    for switch in switch_locations:
+        switches.append('s%s' % counter)
+        gv.write( 's%s [ label = s%s\n' % (counter, counter) )
+        gv.write( '      pos = "%s,%s!" ]\n' % (switch[0], switch[1] ) )
+        counter += 1
+
+    added_links = { }
+    for i in range(len(switch_locations)):
+        for ( from_link, to_link ) in switch_links[i]:
+            min_link = min(from_link, to_link)
+            max_link = max(from_link, to_link)
+            if (not added_links.has_key(min_link) or
+                not (max_link in added_links[min_link])):
+                gv.write(' %s -- %s \n' % ( switches[from_link]
+                        , switches[to_link] ) )
+
+                if added_links.has_key(min_link):
+                    added_links[min_link].add(max_link)
+                else:
+                    added_links[min_link] = set([max_link])
+
+    gv.write( '}\n')
+    gv.close()
+
+def make_mesh( minDistance = 2, initialStrength = 2.5 ):
+    # Now, let us try to make "a realistic" mesh network.
+    # In a wireless mesh network, I assume people just spread those access
+    # points everywhere and then make them contact each other to see who
+    # can reach who and build a wonderful topology. What we are going to do
+    # is emulate this behaviour
+
+
+    # Now, first let's find out nice locations for the switches.
+    # For the moment, I'll use a rectangle with aspect ratio 16:9 because
+    # then it'll fit nicely in a presentation without having to stretch in
+    # any direction.
+
+    #  0             16
+    #  v             v
+    #  +-------------+<--0
+    #  |             |
+    #  |             |
+    #  +-------------+<--9
+    #
+
+    # Get me my switch locations
+    switch_locations = []
+    tries = 100
+    while tries > 0:
+        tries = place_switch( tries, 100, switch_locations
+                            , minDistance = minDistance )
+
+    # Okay so then let's decide where the links go. Switches should link to
+    # those switches that are within their area of influence. So what we do
+    # is that we assign a distance on how far the influence reaches and
+    # then link all those switches that are in range. We start with 1.2
+    # distance for all switches and then we check if everything is
+    # connected. If not, then we find a pair of switches where the other
+    # one is not connected and then increase the strength of 
+    # non-connected switch until it connects. We continue until everything
+    # is connected.
+
+    switch_strengths = map(lambda _: initialStrength, switch_locations)
+    def new_links():
+        return make_switch_links( switch_locations, switch_strengths )
+    switch_links = new_links()
+
+    while True:
+        unconnected_switches = get_unconnected_switches( switch_links )
+        if not unconnected_switches:
+            break
+
+        print(unconnected_switches)
+
+        # Find the best switch to muscle up
+        best_unconnected_switch = None
+        best_unconnected_distance = 100000000
+        for i1 in range(len(switch_locations)):
+            for i2 in range(len(switch_locations)):
+                if (i1 != i2 and
+
+                    distance2( switch_locations[i1]
+                             , switch_locations[i2] ) <
+                    best_unconnected_distance and
+
+                    ( (i1 in unconnected_switches and
+                       i2 not in unconnected_switches ) or
+                      (i1 not in unconnected_switches and
+                       i2 in unconnected_switches ) )):
+
+                    best_unconnected_switch = i1
+                    if i2 in unconnected_switches:
+                        best_unconnected_switch = i2
+                    best_unconnected_distance = distance2(
+                            switch_locations[i1]
+                          , switch_locations[i2])
+
+        switch_strengths[best_unconnected_switch] += 0.1
+        switch_links = new_links()
+
+    return ( switch_locations, switch_links )
 
 def make_switch_links( switch_locations, switch_strengths ):
     """
@@ -200,4 +239,11 @@ def distance2( coords1, coords2 ):
     return (x1-x2)**2 + (y1-y2)**2
 
 topos = { 'mesh': MeshTopo }
+
+if __name__ == '__main__':
+    print( "Because you called me directly, I'm going to make a graphviz file to mesh.dot." )
+    ( s1, s2 ) = make_mesh()
+    write_graphviz( s1, s2 )
+
+    
 
