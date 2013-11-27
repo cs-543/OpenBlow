@@ -17,7 +17,7 @@ namespace Kite
 				while ((line = reader.ReadLine()) != null)
 				{
 					// We only care about links, really.
-					var nodeNames = line.Split(new string[] { " -- " }, StringSplitOptions.None);
+					var nodeNames = line.Trim().Split(new string[] { " -- " }, StringSplitOptions.RemoveEmptyEntries);
 
 					if (nodeNames.Length == 2)
 					{
