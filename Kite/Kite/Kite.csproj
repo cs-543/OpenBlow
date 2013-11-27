@@ -36,5 +36,12 @@
     <Compile Include="Network.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="Switch.cs" />
+    <Compile Include="Link.cs" />
+    <Compile Include="GraphReader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Core" />
+    <Reference Include="System" />
   </ItemGroup>
 </Project>

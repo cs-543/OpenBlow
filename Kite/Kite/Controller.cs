@@ -2,9 +2,9 @@ using System;
 
 namespace Kite
 {
-    public class Controller
+    public class Controller : Node
     {
-        public Controller()
+        public Controller(string name): base(name)
         {
         }
     }
