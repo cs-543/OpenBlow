@@ -18,12 +18,12 @@ namespace Kite
 
         public void AddSwitch(Switch sw)
         {
-    	this.switches.Add(sw);
+            this.switches.Add(sw);
         }
 
-    public Switch FindSwitch(string name)
-    {
-    	return this.switches.FirstOrDefault(sw => sw.Name == name);
+        public Switch FindSwitch(string name)
+        {
+            return this.switches.FirstOrDefault(sw => sw.Name == name);
         }
 
         public int EstablishRoutes()
