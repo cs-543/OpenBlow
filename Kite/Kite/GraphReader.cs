@@ -17,20 +17,21 @@ namespace Kite
 				while ((line = reader.ReadLine()) != null)
 				{
 					// We only care about links, really.
-					var nodeNames = line.Trim().Split(new string[] { " -- " }, StringSplitOptions.RemoveEmptyEntries);
+					var switchNames = line.Trim().Split(new string[] { " -- " }, StringSplitOptions.RemoveEmptyEntries);
 
-					if (nodeNames.Length == 2)
+					if (switchNames.Length == 2)
 					{
-						// Get the nodes or build new ones.
-						var node0 = network.FindNode(nodeNames[0]) ?? new Node(nodeNames[0]);
-						var node1 = network.FindNode(nodeNames[1]) ?? new Node(nodeNames[1]);
+						// Get the switches or build new ones.
+						var sw0 = network.FindSwitch(switchNames[0]) ?? new Switch(switchNames[0]);
+						var sw1 = network.FindSwitch(switchNames[1]) ?? new Switch(switchNames[1]);
 
 						// Link them together
-						// TODO
+                        sw0.AddNeighboor(sw1);
+                        sw1.AddNeighboor(sw0);
 
 						// Store them back in the network.
-						network.AddNode(node0);
-						network.AddNode(node1);
+						network.AddSwitch(sw0);
+						network.AddSwitch(sw1);
 					}
 				}
 			}

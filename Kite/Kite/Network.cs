@@ -6,29 +6,32 @@ namespace Kite
 {
     public class Network
     {
-        private HashSet<Node> nodes = new HashSet<Node>();
+        private HashSet<Switch> switches = new HashSet<Switch>();
 
-        public IEnumerable<Node> Nodes
+        public IEnumerable<Switch> Switches
         {
             get
             {
-                return this.nodes;
+                return this.switches;
             }
         }
 
-        public Network()
+        public void AddSwitch(Switch sw)
         {
+			this.switches.Add(sw);
         }
 
-        public void AddNode(Node node)
-        {
-			this.nodes.Add(node);
-        }
-
-		public Node FindNode(string name)
+		public Switch FindSwitch(string name)
 		{
-			return this.nodes.FirstOrDefault(node => node.Name == name);
-		}
+			return this.switches.FirstOrDefault(sw => sw.Name == name);
+        }
+
+        public int EstablishRoutes()
+        {
+            int iteration = 0;
+
+            return iteration;
+        }
     }
 }
 

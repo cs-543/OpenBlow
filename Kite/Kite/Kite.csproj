@@ -39,6 +39,7 @@
     <Compile Include="Switch.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="GraphReader.cs" />
+    <Compile Include="RoutingTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Core" />
