@@ -14,8 +14,8 @@ namespace Kite
             Console.WriteLine(string.Format("Network built with {0} switches.", network.Switches.Count()));
 
             Console.WriteLine("Establishing routes...");
-            var iterations = network.EstablishRoutes();
-            Console.WriteLine(string.Format("Routes established in {0} iterations.", iterations)); 
+            network.EstablishRoutes();
+            Console.WriteLine(string.Format("Routes established."));
 
             Console.WriteLine("Press any key to terminate...");
             Console.ReadKey(true);
