@@ -34,6 +34,23 @@ namespace Kite
         {
         }
 
+        // This one returns the switch where to go if you want to reach 'target'.
+        // Or it might return 'null' if this switch has no idea.
+        public Switch whereDoIGoNext(string target)
+        {
+            // FIXME: I didn't test this method
+
+            // Are we sure there is not some smart one-liner to do this?
+            foreach (KeyValuePair<Switch, HashSet<string> > pair in this.rtable)
+            {
+                if (pair.Value.Contains(target))
+                {
+                    return pair.Key;
+                }
+            }
+            return null;
+        }
+
         public void AddNeighboor(Switch neigboor)
         {
             if (this.rtable.ContainsKey(neigboor))
