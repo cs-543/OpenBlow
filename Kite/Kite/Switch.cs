@@ -36,7 +36,7 @@ namespace Kite
 
         // This one returns the switch where to go if you want to reach 'target'.
         // Or it might return 'null' if this switch has no idea.
-        public Switch whereDoIGoNext(string target)
+        public Switch WhereDoIGoNext(string target)
         {
             // FIXME: I didn't test this method
 
