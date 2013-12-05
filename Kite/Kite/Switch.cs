@@ -6,6 +6,8 @@ namespace Kite
 {
     public class Switch : Node
     {
+        // ** MAGICAL ROUTING **
+
         // This is the routing table and neigboors at the same time.
         // (lookup by target string is not efficient with this but who cares...)
         private Dictionary<Switch, HashSet<string> > rtable = new Dictionary<Switch, HashSet<string> >();
@@ -13,7 +15,9 @@ namespace Kite
         // Separate dictionary for neigboors and link qualities.
         private Dictionary<Switch, Link> ltable = new Dictionary<Switch, Link>();
 
-        // (What the crap is a neigboor? Are you messing with me?)
+
+        // ** OPENBLOW ROUTING **
+        // TODO: put things here
 
         public IEnumerable<Switch> Neigboors
         {
