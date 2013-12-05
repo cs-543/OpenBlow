@@ -40,6 +40,7 @@
     <Compile Include="Link.cs" />
     <Compile Include="GraphReader.cs" />
     <Compile Include="RoutingTable.cs" />
+    <Compile Include="Packet.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Core" />

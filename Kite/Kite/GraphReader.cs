@@ -25,9 +25,9 @@ namespace Kite
                         var sw0 = network.FindSwitch(switchNames[0]) ?? new Switch(switchNames[0]);
                         var sw1 = network.FindSwitch(switchNames[1]) ?? new Switch(switchNames[1]);
 
-                        // Link them together
-                        sw0.AddNeighboor(sw1);
-                        sw1.AddNeighboor(sw0);
+                        // Link them together, with 50ms delay links
+                        sw0.AddNeighboor(sw1, new Link(50));
+                        sw1.AddNeighboor(sw0, new Link(50));
 
                         // Store them back in the network.
                         network.AddSwitch(sw0);

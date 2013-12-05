@@ -26,6 +26,7 @@ namespace Kite
             return this.switches.FirstOrDefault(sw => sw.Name == name);
         }
 
+        // This method magically establishes routing for all switches
         public void EstablishRoutes()
         {
             // FIXME: what happens if you call EstablishRoutes() more than once?

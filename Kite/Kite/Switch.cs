@@ -10,6 +10,9 @@ namespace Kite
         // (lookup by target string is not efficient with this but who cares...)
         private Dictionary<Switch, HashSet<string> > rtable = new Dictionary<Switch, HashSet<string> >();
 
+        // Separate dictionary for neigboors and link qualities.
+        private Dictionary<Switch, Link> ltable = new Dictionary<Switch, Link>();
+
         // (What the crap is a neigboor? Are you messing with me?)
 
         public IEnumerable<Switch> Neigboors
@@ -20,8 +23,8 @@ namespace Kite
             }
         }
 
-        public void AddRoutingRule(string target_name
-                                  ,Switch target)
+        public void AddRoutingRule( string target_name
+                                  , Switch target )
         {
             // Refuse to add a routing rule if the neigboor has not been declared with 'AddNeighboor'
             Debug.Assert( rtable.ContainsKey(target)
@@ -51,7 +54,14 @@ namespace Kite
             return null;
         }
 
-        public void AddNeighboor(Switch neigboor)
+        // Returns the link quality to given switch. If the given switch is not a neigboor of this one,
+        // returns null.
+        public Link LinkQualityTo(Switch target)
+        {
+            return ltable.ContainsKey(target) ? ltable [target] : null;
+        }
+
+        public void AddNeighboor(Switch neigboor, Link link)
         {
             if (this.rtable.ContainsKey(neigboor))
             {
@@ -59,6 +69,7 @@ namespace Kite
             }
 
             this.rtable.Add(neigboor, new HashSet<string>());
+            this.ltable.Add(neigboor, link);
         }
     }
 }
