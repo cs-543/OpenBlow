@@ -7,23 +7,35 @@ The Flu OpenFlow simulator
 
 Packet implementation
 
-
-PACKET EXAMPLE
----------
-{ "flow_id":1
- ,"destination":"192.168.10.10"
- ,"source":"192.168.10.1"
- ,"payload":"asjdhkasjdhkjashdkjashdkjashdkjashdkj"
- ,"ttl":30 }
----------
-
-RULE EXAMPLE
+BASIC PACKET
 ---------
 {
   "from": "12.123.123.12",
   "to": "1.2.3.4",
+  "data": any
+}
+
+---------
+PAYLOAD PACKET : BASIC PACKET
+---------
+{
+  "from": inherit,
+  "to": inherit,
   "data": {
     "flow_id":1,
+    "payload":"asjdhkasjdhkjashdkjashdkjashdkjashdkj",
+    "ttl":30 
+  }
+}
+
+---------
+RULE PACKET : BASIC PACKET
+---------
+{
+  "from": inherit,
+  "to": inherit,
+  "data": {
+    "flow_id": 1,
     "next_hop":"1.2.3.4"
   }
 }
