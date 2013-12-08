@@ -3,18 +3,6 @@
 import net = require('net');
 
 /**
- * Just a function for printing messages with a time.
- *
- * @param message The string to display
- */
-function log(message: string): void {
-    var date = new Date();
-    var dateStr = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-
-    console.log('[' + dateStr + '] ' + message);
-}
-
-/**
  *
  */
 class Packet {
@@ -55,21 +43,25 @@ class RuleRequest {
  *
  */
 class Controller {
-    private static PORT = 8888;
+    private static PORT_BASE = 8800;
+
+    private name: string = "<anonymous>";
+    private port: number = -1;
 
     private rules: Rule[] = [];
     private server: net.Server = null;
 
-    constructor(rules: Rule[] = []) {
-        this.rules = rules;
+    constructor(id: number) {
+        this.name = "Controller " + id;
+        this.port = id + Controller.PORT_BASE;
 
         this.server = net.createServer(socket => {
             var clientId = socket.remoteAddress + ':' + socket.remotePort;
 
-            log('Client ' + clientId + ' connected');
+            this.log('Client ' + clientId + ' connected');
 
             socket.on('end', () => {
-                log('Client ' + clientId + ' disconnected');
+                this.log('Client ' + clientId + ' disconnected');
             });
 
             // We're gonna read text.
@@ -80,7 +72,8 @@ class Controller {
                 try {
                     this.handleRequest(socket, JSON.parse(data));
                 } catch (e) {
-                    console.error(e + ' $ ' + data);        
+                    console.error(e + ' $ ' + data);
+                    socket.end(); 
                 }
             });
         });
@@ -91,8 +84,8 @@ class Controller {
     }
 
     public listen(): void {
-        this.server.listen(Controller.PORT, () => {
-            log('Listening on port ' + Controller.PORT);
+        this.server.listen(this.port, () => {
+            this.log('Listening on port ' + this.port);
         });
     }
 
@@ -104,17 +97,25 @@ class Controller {
             throw 'No rule found for flow ID ' + request.flow_id;
         }
 
-        log('Providing rule for flow ID ' + request.flow_id);
+        this.log('Providing rule for flow ID ' + request.flow_id);
         socket.end(JSON.stringify(new Packet(
             socket.address().address + ':' +  socket.address().port,
             socket.remoteAddress + ':' + socket.remotePort,
             rule
         )));
     }
+
+    private log(message: string): void {
+        console.log('[' + this.name + '] ' + message);
+    }
 }
 
-// Create the controller.
-var controller = new Controller();
+var controllers: Controller[] = new Array(4);
+
+// Create the controllers.
+for (var i = 0; i < controllers.length; ++i) {
+    controllers[i] = new Controller(i);
+}
 
 // Install rules.
 [
@@ -128,8 +129,11 @@ var controller = new Controller();
     [ 8, 'localhost', 88 ],
     [ 9, 'localhost', 99 ],
 ].forEach((rule: any[]) => {
-    controller.addRule(new Rule(rule[0], rule[1], rule[2]));
+    var c = controllers[i % controllers.length];
+    c.addRule(new Rule(rule[0], rule[1], rule[2]));
 });
 
-// Start the thing up.
-controller.listen();
+// Start up.
+for (i = 0; i < controllers.length; ++i) {
+    controllers[i].listen();
+}
