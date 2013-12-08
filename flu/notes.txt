@@ -1,0 +1,31 @@
+The Flu OpenFlow simulator
+==========================
+
+1. Controller (handing out rules)
+2. Switch (switch table, measure rule activation time)
+3. Traffic generator (measuring)
+
+Packet implementation
+
+
+Packet contains:
+   Flow ID (integer)
+   Destination (IP)
+   Payload (anything)
+
+PACKET EXAMPLE
+---------
+1
+192.168.0.1
+blablablabalbalbalbalbalbalbalbalbalbalb
+
+---------
+
+Rule:
+    Flow ID
+    next hop (IP-address)
+    TTL
+
+Traffic generator:
+    "Realistic"
+
