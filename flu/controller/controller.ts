@@ -119,14 +119,14 @@ var controller = new Controller();
 // Install rules.
 [
     [ 1, 'localhost', 11 ],
-    [ 2, '192.168.0.2', 22 ],
-    [ 3, '192.168.0.3', 33 ],
-    [ 4, '192.168.0.4', 44 ],
-    [ 5, '192.168.0.5', 55 ],
-    [ 6, '192.168.0.6', 66 ],
-    [ 7, '192.168.0.7', 77 ],
-    [ 8, '192.168.0.8', 88 ],
-    [ 9, '192.168.0.9', 99 ],
+    [ 2, 'localhost', 22 ],
+    [ 3, 'localhost', 33 ],
+    [ 4, 'localhost', 44 ],
+    [ 5, 'localhost', 55 ],
+    [ 6, 'localhost', 66 ],
+    [ 7, 'localhost', 77 ],
+    [ 8, 'localhost', 88 ],
+    [ 9, 'localhost', 99 ],
 ].forEach((rule: any[]) => {
     controller.addRule(new Rule(rule[0], rule[1], rule[2]));
 });
