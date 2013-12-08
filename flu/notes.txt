@@ -8,18 +8,18 @@ The Flu OpenFlow simulator
 Packet implementation
 
 
-Packet contains:
-   Flow ID (integer)
-   Destination (IP)
-   Payload (anything)
-
 PACKET EXAMPLE
 ---------
-1
-192.168.0.1
-blablablabalbalbalbalbalbalbalbalbalbalb
-
+{ "flow_id":1
+ ,"destination":"192.168.10.10"
+ ,"payload":"asjdhkasjdhkjashdkjashdkjashdkjashdkj"
+ ,"ttl":30 }
 ---------
+
+RULE EXAMPLE
+---------
+{ "flow_id":1
+, "next_hop":"129.2.3.4" }
 
 Rule:
     Flow ID
