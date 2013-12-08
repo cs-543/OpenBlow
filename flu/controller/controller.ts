@@ -21,6 +21,12 @@ class Packet {
     from: string = null;
     to: string = null;
     data: any = null;
+
+    constructor(from: string, to: string, data: any) {
+        this.from = from;
+        this.to = to;
+        this.data = data;
+    }
 }
 
 /**
@@ -74,7 +80,7 @@ class Controller {
                 try {
                     this.handleRequest(socket, JSON.parse(data));
                 } catch (e) {
-                    console.error(e);        
+                    console.error(e + ' $ ' + data);        
                 }
             });
         });
@@ -90,8 +96,8 @@ class Controller {
         });
     }
 
-    private handleRequest(socket: net.NodeSocket, packet: Packet): void {
-        var request: RuleRequest = packet.data;
+    private handleRequest(socket: net.NodeSocket, inPacket: Packet): void {
+        var request: RuleRequest = inPacket.data;
         var rule = this.rules[request.flow_id] || null;
 
         if (rule === null) {
@@ -99,7 +105,11 @@ class Controller {
         }
 
         log('Providing rule for flow ID ' + request.flow_id);
-        socket.end(JSON.stringify(rule));
+        socket.end(JSON.stringify(new Packet(
+            socket.address().address + ':' +  socket.address().port,
+            socket.remoteAddress + ':' + socket.remotePort,
+            rule
+        )));
     }
 }
 
