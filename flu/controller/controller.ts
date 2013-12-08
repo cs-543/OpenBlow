@@ -72,7 +72,7 @@ class Controller {
                 try {
                     this.handleRequest(socket, JSON.parse(data));
                 } catch (e) {
-                    console.error(e + ' $ ' + data);
+                    this.log(e);
                     socket.end(); 
                 }
             });
@@ -94,7 +94,7 @@ class Controller {
         var rule = this.rules[request.flow_id] || null;
 
         if (rule === null) {
-            throw 'No rule found for flow ID ' + request.flow_id;
+            throw 'No rule for flow ID ' + request.flow_id;
         }
 
         this.log('Providing rule for flow ID ' + request.flow_id);
@@ -128,9 +128,9 @@ for (var i = 0; i < controllers.length; ++i) {
     [ 7, 'localhost', 77 ],
     [ 8, 'localhost', 88 ],
     [ 9, 'localhost', 99 ],
-].forEach((rule: any[]) => {
-    var c = controllers[i % controllers.length];
-    c.addRule(new Rule(rule[0], rule[1], rule[2]));
+].forEach((v: any[], k: number) => {
+    var c = controllers[k % controllers.length];
+    c.addRule(new Rule(v[0], v[1], v[2]));
 });
 
 // Start up.
