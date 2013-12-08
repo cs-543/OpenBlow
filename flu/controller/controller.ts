@@ -17,10 +17,19 @@ function log(message: string): void {
 /**
  *
  */
+class Packet {
+    from: string = null;
+    to: string = null;
+    data: any = null;
+}
+
+/**
+ *
+ */
 class Rule {
-    flow_id: number;
-    next_hop: string;
-    ttl: number;
+    flow_id: number = -1;
+    next_hop: string = null;
+    ttl: number = -1;
 
     constructor(flowId: number, nextHop: string, ttl: number) {
         this.flow_id = flowId;
@@ -63,7 +72,7 @@ class Controller {
             // Data event
             socket.on('data', (data: string) => {
                 try {
-                    this.handleRequest(socket, data);
+                    this.handleRequest(socket, JSON.parse(data));
                 } catch (e) {
                     console.error(e);        
                 }
@@ -81,22 +90,23 @@ class Controller {
         });
     }
 
-    private handleRequest(socket: net.NodeSocket, data: string): void {
-        var request: RuleRequest = JSON.parse(data);
+    private handleRequest(socket: net.NodeSocket, packet: Packet): void {
+        var request: RuleRequest = packet.data;
         var rule = this.rules[request.flow_id] || null;
 
-        if (rule != null) {
-            log('Providing rule for flow ID ' + request.flow_id);
-            socket.end(JSON.stringify(rule));
-        } else {
+        if (rule === null) {
             throw 'No rule found for flow ID ' + request.flow_id;
         }
+
+        log('Providing rule for flow ID ' + request.flow_id);
+        socket.end(JSON.stringify(rule));
     }
 }
 
-// Create the controller
+// Create the controller.
 var controller = new Controller();
 
+// Install rules.
 [
     [ 1, '192.168.0.1', 11 ],
     [ 2, '192.168.0.2', 22 ],
@@ -111,4 +121,5 @@ var controller = new Controller();
     controller.addRule(new Rule(rule[0], rule[1], rule[2]));
 });
 
+// Start the thing up.
 controller.listen();
