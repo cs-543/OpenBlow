@@ -12,14 +12,22 @@ PACKET EXAMPLE
 ---------
 { "flow_id":1
  ,"destination":"192.168.10.10"
+ ,"source":"192.168.10.1"
  ,"payload":"asjdhkasjdhkjashdkjashdkjashdkjashdkj"
  ,"ttl":30 }
 ---------
 
 RULE EXAMPLE
 ---------
-{ "flow_id":1
-, "next_hop":"129.2.3.4" }
+{
+  "from": "12.123.123.12",
+  "to": "1.2.3.4",
+  "data": {
+    "flow_id":1,
+    "next_hop":"1.2.3.4"
+  }
+}
+
 
 Rule:
     Flow ID
