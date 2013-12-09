@@ -1,0 +1,15 @@
+
+./Switch [ME] [PROXY] [CONTROLLERS ...]
+
+for example:
+
+                        Don't put port on this one        Controllers
+                                |                        (ports are virtual)
+                                |                             |
+                                |                     +-------+-----+
+                                v                     v             v
+./Switch 192.168.0.148:8888 192.168.0.134 192.168.0.111:8800 192.168.0.111:8801
+                        ^
+                        |
+            It will actually listen on this port
+
