@@ -2,6 +2,13 @@
 
 import net = require('net');
 
+if (process.argv.length < 4) {
+    console.log('Usage: node controller.js CONTROLLER_COUNT CONTROLLER_PORT_BASE');
+}
+
+var CONTROLLER_COUNT = parseInt(process.argv[2]);
+var CONTROLLER_PORT_BASE = parseInt(process.argv[3]);
+
 /**
  *
  */
@@ -35,16 +42,28 @@ class Rule {
 /**
  *
  */
-class RuleRequest {
-    flow_id: number;
+class RuleNotFoundPacket {
+    failed_flow_id: number = -1;
+
+    constructor(flowId: number) {
+        this.failed_flow_id = flowId;
+    }
 }
 
 /**
  *
  */
-class Controller {
-    private static PORT_BASE = 8800;
+class RuleRequest {
+    flow_id: number;
+}
 
+var CONNECT = 0;
+var DISCONNECT = 0;
+
+/**
+ *
+ */
+class Controller {
     private name: string = "<anonymous>";
     private port: number = -1;
 
@@ -53,20 +72,23 @@ class Controller {
 
     constructor(id: number) {
         this.name = "Controller " + id;
-        this.port = id + Controller.PORT_BASE;
+        this.port = id + CONTROLLER_PORT_BASE;
 
         this.server = net.createServer(socket => {
+            CONNECT++;
             var clientId = socket.remoteAddress + ':' + socket.remotePort;
 
             this.log('Client ' + clientId + ' connected');
 
             socket.on('end', () => {
                 this.log('Client ' + clientId + ' disconnected');
+                DISCONNECT++;
+
+                this.log("(" + CONNECT + " / " + DISCONNECT + ")");
             });
 
             // We're gonna read text.
-            socket.setEncoding('utf8');
-            
+            socket.setEncoding('utf8');0            
             // Data event
             socket.on('data', (data: string) => {
                 try {
@@ -91,17 +113,18 @@ class Controller {
 
     private handleRequest(socket: net.NodeSocket, inPacket: Packet): void {
         var request: RuleRequest = inPacket.data;
-        var rule = this.rules[request.flow_id] || null;
+        var payload: any = this.rules[request.flow_id] || null;
 
-        if (rule === null) {
-            throw 'No rule for flow ID ' + request.flow_id;
+        if (payload === null) {
+            payload = new RuleNotFoundPacket(request.flow_id);
         }
 
         this.log('Providing rule for flow ID ' + request.flow_id);
+
         socket.end(JSON.stringify(new Packet(
             socket.address().address + ':' +  socket.address().port,
             socket.remoteAddress + ':' + socket.remotePort,
-            rule
+            payload
         )) + '\n');
     }
 
@@ -110,7 +133,7 @@ class Controller {
     }
 }
 
-var controllers: Controller[] = new Array(4);
+var controllers: Controller[] = new Array(CONTROLLER_COUNT);
 
 // Create the controllers.
 for (var i = 0; i < controllers.length; ++i) {
@@ -119,15 +142,16 @@ for (var i = 0; i < controllers.length; ++i) {
 
 // Install rules.
 [
-    [ 1, 'localhost', 11 ],
-    [ 2, 'localhost', 22 ],
-    [ 3, 'localhost', 33 ],
-    [ 4, 'localhost', 44 ],
-    [ 5, 'localhost', 55 ],
-    [ 6, 'localhost', 66 ],
-    [ 7, 'localhost', 77 ],
-    [ 8, 'localhost', 88 ],
-    [ 9, 'localhost', 99 ],
+    // Flow id, netx hop, ttl
+    [ 1, 'null:0', 10 ],
+    [ 2, 'null:0', 10 ],
+    [ 3, 'null:0', 10 ],
+    [ 4, 'null:0', 10 ],
+    [ 5, 'null:0', 10 ],
+    [ 6, 'null:0', 10 ],
+    [ 7, 'null:0', 10 ],
+    [ 8, 'null:0', 10 ],
+    [ 9, 'null:0', 10 ],
 ].forEach((v: any[], k: number) => {
     var c = controllers[k % controllers.length];
     c.addRule(new Rule(v[0], v[1], v[2]));
