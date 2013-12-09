@@ -107,7 +107,7 @@ splitHost host = over _2 (PortNumber . fromIntegral . read . T.unpack) $ toTuple
 main :: IO ()
 main = do
     (me:controllers) <- (fmap T.pack) <$> getArgs
-    listener <- listenOn (PortNumber 20100)
+    listener <- listenOn (PortNumber 8888)
     sw <- newMVar M.empty
     controller_chan <- newTChanIO
     ref <- newIORef M.empty
@@ -140,8 +140,8 @@ controllerHandler me controller_hosts chan table_ref = forever $ do
                 forM_ controller_hosts $ \host -> do
                     result <- try $ do
                         syncPutStrLn $ "Making connection to controller... (" ++ T.unpack host ++ ")"
-                        let (actual_host, port) = splitHost host
-                        handle <- connectTo (T.unpack actual_host) port
+                        let (actual_host, _) = splitHost host
+                        handle <- connectTo (T.unpack actual_host) (PortNumber 8888)
                         syncPutStrLn "Done"
 
                         rule <- measureTime "rule_activation" $ do
@@ -229,7 +229,8 @@ clientHandler me controller_chan switch_connections_mvar handle = do
         case M.lookup destination switch_connections of
             Nothing -> do
                 syncPutStrLn $ "I'm connecting to switch " ++ T.unpack destination
-                conn <- connectTo (T.unpack destination) (PortNumber 20100)
+                let (host, _) = splitHost destination
+                conn <- connectTo (T.unpack host) (PortNumber 8888)
                 syncPutStrLn "Connected"
                 return $ M.insert destination conn switch_connections
             Just _ -> return switch_connections
