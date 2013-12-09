@@ -3,6 +3,7 @@ var net = require('net');
 
 if (process.argv.length < 4) {
     console.log('Usage: node controller.js CONTROLLER_COUNT CONTROLLER_PORT_BASE');
+    return;
 }
 
 var CONTROLLER_COUNT = parseInt(process.argv[2]);
