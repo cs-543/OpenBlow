@@ -102,7 +102,7 @@ class Controller {
             socket.address().address + ':' +  socket.address().port,
             socket.remoteAddress + ':' + socket.remotePort,
             rule
-        )));
+        )) + '\n');
     }
 
     private log(message: string): void {
